@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!-- 启用组件扫描 -->
+    <context:component-scan base-package="org.example"/>
+
+    <!-- 定义DAO Bean -->
+    <bean id="orderDao" class="org.example.dao.OrderDaoImpl"/>
+    
+    <!-- 定义Service Bean -->
+    <bean id="orderService" class="org.example.service.OrderServiceImpl">
+        <constructor-arg ref="orderDao"/>
+    </bean>
+
+    <!-- 定义切面Bean -->
+    <bean id="loggingAspect" class="org.example.aspect.LoggingAspect"/>
+
+    <!-- AOP配置 -->
+    <aop:config>
+        <!-- 定义切点 -->
+        <aop:pointcut id="orderServiceMethods" expression="execution(* org.example.service.OrderService.*(..))"/>
+
+        <!-- 定义切面 -->
+        <aop:aspect ref="loggingAspect">
+            <!-- 前置通知 -->
+            <aop:before method="logBefore" pointcut-ref="orderServiceMethods"/>
+            
+            <!-- 后置通知 -->
+            <aop:after method="logAfter" pointcut-ref="orderServiceMethods"/>
+            
+            <!-- 环绕通知 -->
+            <aop:around method="logExecutionTime" pointcut-ref="orderServiceMethods"/>
+        </aop:aspect>
+    </aop:config>
+
+</beans> 
